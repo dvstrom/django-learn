@@ -10,7 +10,7 @@ def populate():
     """
     
     """
-    python_cat = add_cat('JAVA', 128, 64)
+    python_cat = add_cat('python', 128, 64)
 
     add_page(cat=python_cat,
              title='Official Python Turorial',
