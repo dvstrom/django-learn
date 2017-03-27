@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from rango.models import Category
 from rango.models import Page
 from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 def index(request):
    # context_dict = {'boldmessage': "I am bold font from the context"}
@@ -112,4 +113,13 @@ def user_login(request):
             print "Invalid login details:{0},{1}".format(username, password)
             return HttpResponse("Invalid login details supplied")
     else:
-        return render(request,'rango/login.html',{})
+        return render(request,'rango/login.html', {})
+
+@login_required
+def restricted(request):
+    return HttpResponse("Since you're logged in ,you can see this text!")
+
+@login_required
+def user_logout(request):
+    logout(request)
+    return HttpResponseRedirect('/rango')
