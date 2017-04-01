@@ -6,13 +6,61 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 # Create your views here.
 def index(request):
    # context_dict = {'boldmessage': "I am bold font from the context"}
    # return HttpResponse("Rango says hey there world! <br/><a href='/rango/about'>About</a>")
-    category_list = Category.objects.order_by('-likes')[:5]
-    context_dict = {'categories': category_list}
-    return render(request, 'rango/index.html', context_dict)
+    category_list = Category.objects.all()
+    page_list = Page.objects.order_by('-views')[:5]
+    
+    context_dict = {'categories': category_list, 'pages': page_list}
+
+    # visits = int(request.COOKIES.get('visits','1'))
+    visits = request.session.get('visits')
+    if not visits:
+        visits = 1
+    reset_last_visit_time = False
+
+    last_visit = request.session.get('last_visit')
+    if last_visit:
+        last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+
+        if (datetime.now() - last_visit_time).seconds > 0:
+            visits = visits + 1
+            reset_last_visit_time = True
+
+    else:
+        reset_last_visit_time = True
+
+    if reset_last_visit_time:
+        request.session['last_visit'] = str(datetime.now())
+        request.session['visits'] = visits
+
+    context_dict['visits'] = visits
+
+    response = render(request, 'rango/index.html', context_dict)
+    return response
+
+    # response = render(request, 'rango/index.html', context_dict)
+    # if 'last_visit' in request.COOKIES:
+    #     last_visit = request.COOKIES['last_visit']
+    #     last_visit_time = datetime.strptime(last_visit[:-7], "%Y-%m-%d %H:%M:%S")
+    #     if (datetime.now()-last_visit_time).seconds > 5:
+    #         visits = visits + 1
+    #         reset_last_visit_time = True
+    # else:
+    #     reset_last_visit_time = True
+    #     context_dict['visits'] = visits
+    #     response = render(request, 'rango/index.html', context_dict)
+    # if reset_last_visit_time:
+    #     response.set_cookie('last_visit', datetime.now())
+    #     response.set_cookie('visits', visits)
+    #request.session.set_test_cookie()   
+    # category_list = Category.objects.order_by('-likes')[:5]
+    # context_dict = {'categories': category_list}
+    # return render(request, 'rango/index.html', context_dict)
+    # return response
 
 def about(request):
     return HttpResponse("Rango says here is the about page <br/><a href='/rango/'>Index</a>")
@@ -71,6 +119,9 @@ def add_page(request, category_name_slug):
 
 
 def register(request):
+    if request.session.test_cookie_worked():
+        print ">>>TEST COOKIE WORKED!"
+        request.session.delete_test_cookie()
     registered = False
     if request.method == 'POST':
         user_form = UserForm(data=request.POST)
