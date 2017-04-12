@@ -17,11 +17,14 @@
             <ul>
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'restricted' %}">Restricted Page</a></li>
-                <li><a href="{% url 'logout' %}">Logout</a></li>
+                <!-- <li><a href="{% url 'logout' %}">Logout</a></li> -->
+                <li><a href="{% url 'auth_logout' %}">Logout</a></li>
                 <li><a href="{% url 'add_category' %}">Add a new Category</a></li>
                 {% else %}
-                <li><a href="{% url 'register' %}">Register Here</a></li>
-                <li><a href="{% url 'login' %}">LogIn</a></li>
+                <!-- <li><a href="{% url 'register' %}">Register Here</a></li> -->
+                <li><a href="{% url 'registration_register' %}">Register Here</a></li>
+                <!-- <li><a href="{% url 'login' %}">LogIn</a></li> -->
+                <li><a href="{% url 'auth_login' %}">LogIn</a></li>
                 {% endif %}
 
                 <li><a href="{% url 'about' %}">About</a></li>
